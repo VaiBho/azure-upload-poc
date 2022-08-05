@@ -1,26 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { IPublicClientApplication } from "@azure/msal-browser";
+import { useMsal, useIsAuthenticated } from "@azure/msal-react";
+import { loginRequest } from "./AuthConfig";
+import Storage from "./Storage";
 
-function App() {
+function handleLogin(instance: IPublicClientApplication) {
+  instance.loginRedirect(loginRequest).catch((e: Error) => {
+    console.error(e);
+  });
+}
+function handleLogout(instance: IPublicClientApplication) {
+  instance.logoutRedirect().catch((e: Error) => {
+    console.error(e);
+  });
+}
+
+const App = () => {
+  const { instance } = useMsal();
+  const isAuthenticated = useIsAuthenticated();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {!isAuthenticated ? (
+        <button onClick={() => handleLogin(instance)}>Sign in</button>
+      ) : (
+        <button onClick={() => handleLogout(instance)}>Sign Out</button>
+      )}
+
+      <Storage />
     </div>
   );
-}
+};
 
 export default App;
